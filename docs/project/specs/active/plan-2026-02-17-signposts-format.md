@@ -123,11 +123,11 @@ start: getting-started
 workflows:
   - id: getting-started
     title: Getting Started
-    description: "Initial assessment and preparation"
+    description: Initial assessment and preparation
     paths:
       - id: assess
         title: Assess
-        description: "Understand scope, dependencies, and test coverage"
+        description: Understand scope, dependencies, and test coverage
         docs:
           - ./reference/python-to-rust-playbook.md
           - ./reference/python-to-rust-test-coverage-playbook.md
@@ -137,13 +137,13 @@ workflows:
           - ref#go-no-go-criteria
         routes:
           - to: research
-            when: "Coverage sufficient, ready to evaluate Rust libraries"
+            when: Coverage sufficient, ready to evaluate Rust libraries
           - to: improve-coverage
-            when: "Test coverage below 80% on core modules"
+            when: Test coverage below 80% on core modules
 
       - id: improve-coverage
         title: Improve Test Coverage
-        description: "Grow Python test coverage before porting begins"
+        description: Grow Python test coverage before porting begins
         docs:
           - ./reference/python-to-rust-test-coverage-playbook.md
           - ./guidelines/test-coverage-for-porting.md
@@ -154,15 +154,15 @@ workflows:
           - ./reference/python-to-rust-test-coverage-playbook.md#measuring-coverage
         routes:
           - to: assess
-            when: "Re-evaluate readiness after improving coverage"
+            when: Re-evaluate readiness after improving coverage
 
   - id: core-workflow
     title: Core Workflow
-    description: "The end-to-end porting process"
+    description: The end-to-end porting process
     paths:
       - id: research
         title: Research
-        description: "Evaluate Rust library candidates with real inputs"
+        description: Evaluate Rust library candidates with real inputs
         docs:
           - ./reference/python-to-rust-playbook.md
           - ./reference/python-to-rust-mapping-reference.md
@@ -173,11 +173,11 @@ workflows:
         routes:
           - to: plan
           - to: assess
-            when: "Risk too high, reconsider scope"
+            when: Risk too high, reconsider scope
 
       - id: plan
         title: Plan
-        description: "Architecture, module order, feature parity matrix"
+        description: Architecture, module order, feature parity matrix
         docs:
           - ./reference/python-to-rust-playbook.md
         steps:
@@ -189,7 +189,7 @@ workflows:
 
       - id: setup
         title: Set Up
-        description: "Cargo.toml, CI, test fixtures, Python submodule"
+        description: Cargo.toml, CI, test fixtures, Python submodule
         docs:
           - ./guidelines/rust-project-setup.md
           - ./reference/rust-cli-best-practices.md
@@ -203,7 +203,7 @@ workflows:
 
       - id: port
         title: Port
-        description: "Port module by module, tests first, leaf to root"
+        description: Port module by module, tests first, leaf to root
         docs:
           - ./reference/python-to-rust-porting-guide.md
           - ./guidelines/python-to-rust-porting-rules.md
@@ -214,11 +214,11 @@ workflows:
         routes:
           - to: fix
           - to: research
-            when: "Library gap discovered during porting"
+            when: Library gap discovered during porting
 
       - id: fix
         title: Fix
-        description: "Cross-validate outputs, categorize diffs, workarounds"
+        description: Cross-validate outputs, categorize diffs, workarounds
         docs:
           - ./reference/python-to-rust-playbook.md
           - ./reference/python-to-rust-porting-guide.md
@@ -230,11 +230,11 @@ workflows:
         routes:
           - to: finalize
           - to: port
-            when: "Porting bugs found, need to revisit module implementation"
+            when: Porting bugs found, need to revisit module implementation
 
       - id: finalize
         title: Finalize
-        description: "CLI parity, docs, release configuration"
+        description: CLI parity, docs, release configuration
         docs:
           - ./reference/rust-cli-best-practices.md
           - ./reference/rust-code-review-checklist.md
@@ -248,7 +248,7 @@ workflows:
 
       - id: sync
         title: Sync
-        description: "Track Python upstream updates, manage divergences"
+        description: Track Python upstream updates, manage divergences
         docs:
           - ./reference/port-checklist-update-template.md
         steps:
@@ -258,94 +258,94 @@ workflows:
           - ./reference/port-checklist-update-template.md#cross-validate
         routes:
           - to: fix
-            when: "New differences found after syncing upstream changes"
+            when: New differences found after syncing upstream changes
 
   - id: reference
     title: Reference
-    description: "Comprehensive reference documents"
+    description: Comprehensive reference documents
     paths:
       - id: mapping-reference
         title: Mapping Reference
-        description: "Python-to-Rust type/pattern/construct mapping"
+        description: Python-to-Rust type/pattern/construct mapping
         docs:
           - ./reference/python-to-rust-mapping-reference.md
 
       - id: test-coverage
         title: Test Coverage
-        description: "Test coverage strategy and golden testing for porting"
+        description: Test coverage strategy and golden testing for porting
         docs:
           - ./reference/python-to-rust-test-coverage-playbook.md
           - ./guidelines/test-coverage-for-porting.md
 
       - id: cli-best-practices
         title: CLI Best Practices
-        description: "Rust CLI best practices and crate recommendations"
+        description: Rust CLI best practices and crate recommendations
         docs:
           - ./reference/rust-cli-best-practices.md
 
       - id: code-review
         title: Code Review
-        description: "Rust code review checklist"
+        description: Rust code review checklist
         docs:
           - ./reference/rust-code-review-checklist.md
 
   - id: guidelines
     title: Guidelines
-    description: "Compact rules suitable for agent context injection"
+    description: Compact rules suitable for agent context injection
     paths:
       - id: porting-rules
         title: Porting Rules
-        description: "Python-to-Rust porting rules and pitfalls"
+        description: Python-to-Rust porting rules and pitfalls
         docs:
           - ./guidelines/python-to-rust-porting-rules.md
 
       - id: cli-porting
         title: CLI Porting
-        description: "CLI-specific porting (argparse to clap, SIGPIPE, exit codes)"
+        description: CLI-specific porting (argparse to clap, SIGPIPE, exit codes)
         docs:
           - ./guidelines/python-to-rust-cli-porting.md
 
       - id: rust-general
         title: General Rust Rules
-        description: "General Rust coding rules (Edition 2024+)"
+        description: General Rust coding rules (Edition 2024+)
         docs:
           - ./guidelines/rust-general-rules.md
 
       - id: rust-cli-patterns
         title: Rust CLI Patterns
-        description: "Rust CLI application patterns (clap, error handling, config)"
+        description: Rust CLI application patterns (clap, error handling, config)
         docs:
           - ./guidelines/rust-cli-app-patterns.md
 
       - id: rust-project-setup
         title: Rust Project Setup
-        description: "Cargo.toml, CI/CD, lint config, release workflow"
+        description: Cargo.toml, CI/CD, lint config, release workflow
         docs:
           - ./guidelines/rust-project-setup.md
 
   - id: templates
     title: Templates
-    description: "Templates for case study documentation"
+    description: Templates for case study documentation
     paths:
       - id: observations-template
         title: Observations Template
-        description: "Template for recording port observations (playbook feedback)"
+        description: Template for recording port observations (playbook feedback)
         docs:
           - ./reference/case-study-observations-template.md
 
       - id: triage-template
         title: Triage Template
-        description: "Template for triaging observations into playbook improvements"
+        description: Template for triaging observations into playbook improvements
         docs:
           - ./reference/case-study-improvement-triage-template.md
 
   - id: meta
     title: Meta
-    description: "Maintaining and improving the playbook itself"
+    description: Maintaining and improving the playbook itself
     paths:
       - id: improving-playbook
         title: Improving the Playbook
-        description: "How to improve this playbook through your port experience"
+        description: How to improve this playbook through your port experience
         docs:
           - ./reference/meta-improving-this-playbook.md
 
@@ -556,7 +556,7 @@ paths:
       ./reference/python-to-rust-playbook.md#dependency-risk-table: completed
       ./reference/python-to-rust-test-coverage-playbook.md: completed
       ref#go-no-go-criteria: completed
-    notes: "Coverage at 85% on core modules. Proceeding to research."
+    notes: Coverage at 85% on core modules. Proceeding to research.
 
   research:
     status: in_progress
