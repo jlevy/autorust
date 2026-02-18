@@ -118,9 +118,22 @@ Defines the complete graph: workflows containing paths, each with steps and rout
 
 format: "SP/0.1"
 name: Python to Rust Porting Playbook
-start: getting-started
+start: start
 
 workflows:
+  - id: start
+    title: Start
+    description: Determine your porting scenario
+    docs:
+      - ref#start-guide
+    routes:
+      - to: getting-started/assess
+        when: Starting a new port from scratch
+      - to: core-workflow/sync
+        when: Syncing an existing port with Python upstream changes
+      - to: reference/test-coverage
+        when: Just need test coverage guidance
+
   - id: getting-started
     title: Getting Started
     description: Initial assessment and preparation
@@ -350,6 +363,18 @@ workflows:
           - ./reference/meta-improving-this-playbook.md
 
 refs:
+  - id: start-guide
+    title: Getting Started with Your Port
+    body: |
+      Welcome to the Python-to-Rust porting playbook!
+
+      **What brings you here?**
+      - Starting a fresh port → Go to Assess (getting-started workflow)
+      - Syncing an existing port with Python changes → Go to Sync (core-workflow)
+      - Need test coverage help → Go to Test Coverage (reference)
+
+      Use `autorust signposts where` to see your current position and next steps.
+
   - id: go-no-go-criteria
     title: Go/No-Go Decision Criteria
     body: |
@@ -457,10 +482,15 @@ All YAML keys in signposts use `snake_case` convention.
 | `id` | yes | Globally unique identifier. Must match `[a-z][a-z0-9-]*`. |
 | `title` | yes | Short display title. |
 | `description` | no | One-line description shown in listings. |
+| `docs` | no | List of docspecs (with optional locspecs). Documentation for the workflow itself (e.g., overview, decision criteria). |
+| `routes` | no | List of routes to paths (in this or other workflows). Used for menu-style navigation or conditional workflow selection. |
 | `paths` | yes | Ordered list of path definitions. |
 
 Workflows organize both display and traversal.
 The default traversal order within a workflow is the listed path order.
+
+Workflows with `docs` and `routes` can serve as decision points or menus, guiding users/agents
+to the appropriate workflow based on their situation.
 
 #### Path fields
 
@@ -488,14 +518,21 @@ Steps within a path must be unique (no duplicate docspec#locspec pairs).
 
 #### Route fields
 
+Routes can appear in workflows (workflow-level routes) or paths (path-level routes).
+
 | Field | Required | Description |
 | --- | --- | --- |
-| `to` | yes | Target path ID. |
+| `to` | yes | Target path. Format: `path-id` (within current workflow) or `workflow-id/path-id` (cross-workflow). |
 | `at` | no | Target step (docspec#locspec) within the target path. If omitted, starts at the beginning of the path. |
 | `when` | no | Human-readable condition describing when to take this route. If omitted, this is the default/unconditional next step. |
 
-Routes can jump within the current path (same `to` as current path, different `at`) or
-across paths (different `to`).
+**Path-level routes** (routes within a path) can:
+- Jump within the current path (same `to` as current path, different `at`)
+- Jump to another path in the same workflow (just the path ID)
+- Jump to a path in a different workflow (`workflow-id/path-id`)
+
+**Workflow-level routes** (routes within a workflow) must use the `workflow-id/path-id`
+format or reference paths within the same workflow by path ID alone.
 
 #### Ref fields
 
@@ -518,8 +555,9 @@ structure.
   CLI identifiers).
 - **Steps** are docspec strings (with optional locspec).
   Must be unique within their parent path.
-- **Route `to` targets** must reference existing path IDs.
-  Validated on load.
+- **Route `to` targets** must reference existing paths. Format: `path-id` (within current
+  workflow) or `workflow-id/path-id` (cross-workflow). Both workflow and path IDs must
+  exist. Validated on load.
 - **Route `at` targets** must reference existing steps within the target path.
   Validated on load.
 - **Ref IDs** must be unique and match `[a-z][a-z0-9-]*`. Local ref docspecs
@@ -834,6 +872,12 @@ When a path has multiple docs, each is printed with a header line showing the fi
     makes parsing unambiguous and strict — no heuristic guessing.
     The `./` prefix for files avoids YAML quoting issues with `#` and is consistent with
     shell path conventions.
+
+13. **Workflow-level routes for menu navigation.** Workflows can have `docs` and `routes`
+    fields, allowing them to serve as decision points or menus. This supports scenarios
+    where an agent asks the user questions to determine which workflow to enter (e.g.,
+    "Are you starting a new port or syncing an existing one?"). Routes use
+    `workflow-id/path-id` format for cross-workflow navigation.
 
 ## Open Questions
 
