@@ -9,7 +9,7 @@
 ## Overview
 
 signposts is a YAML format for defining **knowledge flow maps** — structured graphs of
-documentation organized into areas, paths, steps, and routes, navigable via CLI with
+documentation organized into workflows, paths, steps, and routes, navigable via CLI with
 progress tracking.
 
 Playbooks, runbooks, and onboarding guides have implicit structure: phases depend on
@@ -22,7 +22,7 @@ to tooling. signposts makes it machine-readable.
 
 - **`signposts.yml`** — the reusable graph definition.
   Lives in a knowledge repo (e.g., a playbook repository).
-  Defines areas, paths, steps, routes, and linked documentation.
+  Defines workflows, paths, steps, routes, and linked documentation.
 - **`progress.yml`** — per-project state tracking.
   Lives in the consuming project.
   Tracks which paths and steps are complete, in progress, or skipped.
@@ -37,8 +37,8 @@ The YAML is the map; the docs are the territory.
 
 **Key concepts:**
 
-- **Area** — a group of related paths (e.g., "Getting Started", "Reference").
-  Organizes both display and traversal.
+- **Workflow** — a group of related paths (e.g., "Getting Started", "Reference"). Organizes
+  both display and traversal.
 - **Path** — an ordered sequence of steps through documentation.
   The primary unit of work.
 - **Step** — a single piece of documentation to work through (a docspec).
@@ -52,9 +52,9 @@ The YAML is the map; the docs are the territory.
   guides, migration checklists, security assessments.
 - **CLI-navigable**: Agents and humans traverse the graph via CLI, receiving relevant
   documentation at each step.
-- **Progress tracking**: Persistent state of where you are in the flow, what's complete,
-  what's next.
-- **Loose workflow**: Routes suggest what comes next but don't enforce gates.
+- **Progress tracking**: Persistent state of where you are in the flow, what’s complete,
+  what’s next.
+- **Loose workflow**: Routes suggest what comes next but don’t enforce gates.
   You can jump to any path at any time.
   The graph is guidance, not a state machine.
 - **Agent-friendly**: All output is structured for agent consumption.
@@ -63,12 +63,12 @@ The YAML is the map; the docs are the territory.
 ## Non-Goals
 
 - **Enforced gates**: signposts does not block you from starting a path whose
-  prerequisites aren't met.
+  prerequisites aren’t met.
   The `when` conditions on routes are descriptive guidance for the human or agent, not
   machine-enforced preconditions.
 - **Runtime orchestration**: signposts is not a workflow engine.
-  It doesn't execute tasks, schedule jobs, or manage agent coordination.
-- **Content authoring**: signposts links to documentation; it doesn't generate or
+  It doesn’t execute tasks, schedule jobs, or manage agent coordination.
+- **Content authoring**: signposts links to documentation; it doesn’t generate or
   template it.
 - **Auto-generated graphs**: The graph is human-authored.
   This is intentional — the structure represents expert knowledge about how to navigate
@@ -80,7 +80,7 @@ The YAML is the map; the docs are the territory.
 
 No existing tool combines all of these properties:
 
-1. YAML-authored graph with areas, paths, and routes
+1. YAML-authored graph with workflows, paths, and routes
 2. Agent-navigable via CLI
 3. Steps/checklists within each path
 4. Conditional branching (routes with `when` descriptions)
@@ -108,19 +108,19 @@ tracking.
 ### `signposts.yml` — Graph Definition
 
 Lives at the root of a knowledge repository (e.g., a playbook repo).
-Defines the complete graph: areas containing paths, each with steps and routes.
+Defines the complete graph: workflows containing paths, each with steps and routes.
 
 ```yaml
 # signposts.yml — Knowledge flow map for porting Python to Rust
 #
-# Areas group related paths. Paths are ordered sequences of steps.
+# Workflows group related paths. Paths are ordered sequences of steps.
 # Routes hint at how to jump between paths based on conditions.
 
 format: "SP/0.1"
 name: Python to Rust Porting Playbook
 start: getting-started
 
-areas:
+workflows:
   - id: getting-started
     title: Getting Started
     description: "Initial assessment and preparation"
@@ -368,8 +368,8 @@ refs:
 | --- | --- | --- |
 | `format` | yes | Format version (currently `SP/0.1`). Checked for compatibility. |
 | `name` | yes | Human-readable name for this knowledge flow map. |
-| `start` | yes | Area ID of the entry point. Traversal begins at the first path in this area. |
-| `areas` | yes | Ordered list of area definitions. |
+| `start` | yes | Workflow ID of the entry point. Traversal begins at the first path in this workflow. |
+| `workflows` | yes | Ordered list of workflow definitions. |
 | `refs` | no | List of inline document definitions, referenced by `ref#<id>` docspecs. |
 
 #### Document References: Docspecs and Locspecs
@@ -390,9 +390,10 @@ It is one of:
 - **URL**: `https://docs.rs/comrak/latest/comrak/`
 
 - **Local ref**: `ref#<id>` — references an inline document defined in the `refs`
-  section of the same signposts.yml file. Useful for short content that doesn't warrant
-  its own file (decision criteria, quick checklists, brief notes). No YAML quoting
-  needed.
+  section of the same signposts.yml file.
+  Useful for short content that doesn’t warrant its own file (decision criteria, quick
+  checklists, brief notes).
+  No YAML quoting needed.
 
 - **Remote source** using the docspec format for references:
 
@@ -449,7 +450,7 @@ supported, but for now locspecs are GFM heading slugs only.
 
 All YAML keys in signposts use `snake_case` convention.
 
-#### Area fields
+#### Workflow fields
 
 | Field | Required | Description |
 | --- | --- | --- |
@@ -458,8 +459,8 @@ All YAML keys in signposts use `snake_case` convention.
 | `description` | no | One-line description shown in listings. |
 | `paths` | yes | Ordered list of path definitions. |
 
-Areas organize both display and traversal.
-The default traversal order within an area is the listed path order.
+Workflows organize both display and traversal.
+The default traversal order within a workflow is the listed path order.
 
 #### Path fields
 
@@ -472,17 +473,16 @@ The default traversal order within an area is the listed path order.
 | `steps` | no | Ordered list of steps (docspec strings). |
 | `routes` | no | List of routes to other paths or steps. |
 
-Paths without `routes` are terminal within their area (default traversal continues to
-the next path in the area, or the area is complete).
+Paths without `routes` are terminal within their workflow (default traversal continues to
+the next path in the workflow, or the workflow is complete).
 Paths without `steps` are informational (reference material, no checklist).
 
 #### Step fields
 
 A step is simply a docspec (with optional locspec).
-The `docspec#locspec` string serves as the step's identity — no separate `id` field is
-needed.
-The step's display text comes from the doc's frontmatter `description` or the heading
-text when using a locspec.
+The `docspec#locspec` string serves as the step’s identity — no separate `id` field is
+needed. The step’s display text comes from the doc’s frontmatter `description` or the
+heading text when using a locspec.
 
 Steps within a path must be unique (no duplicate docspec#locspec pairs).
 
@@ -499,23 +499,22 @@ across paths (different `to`).
 
 #### Ref fields
 
-The top-level `refs` list defines inline documents that can be referenced by
-`ref#<id>` docspecs anywhere a docspec is accepted (in `docs`, `steps`, or route `at`
-fields).
+The top-level `refs` list defines inline documents that can be referenced by `ref#<id>`
+docspecs anywhere a docspec is accepted (in `docs`, `steps`, or route `at` fields).
 
 | Field | Required | Description |
 | --- | --- | --- |
 | `id` | yes | Unique identifier. Must match `[a-z][a-z0-9-]*`. Referenced as `ref#<id>` in docspecs. |
 | `title` | yes | Display title for the document. |
-| `body` | yes | The document content (markdown string). Use YAML literal block scalar (`|`) for multi-line content. |
+| `body` | yes | The document content (markdown string). Use YAML literal block scalar (` |
 
-Refs are useful for short content that doesn't warrant its own file: decision criteria,
+Refs are useful for short content that doesn’t warrant its own file: decision criteria,
 quick checklists, brief notes, or transitional guidance specific to the signpost
 structure.
 
 #### Constraints
 
-- **All IDs** (area and path) must be globally unique and match `[a-z][a-z0-9-]*` (valid
+- **All IDs** (workflow and path) must be globally unique and match `[a-z][a-z0-9-]*` (valid
   CLI identifiers).
 - **Steps** are docspec strings (with optional locspec).
   Must be unique within their parent path.
@@ -529,13 +528,13 @@ structure.
   `./` (relative file), `ref#` (local ref), `github:` (remote source), or `https://` /
   `http://` (URL). Strings without a recognized prefix are parse errors.
 - **File docspecs** (`./` prefix) are resolved relative to the directory containing
-  `signposts.yml`. Warn (but don't fail) on missing files.
+  `signposts.yml`. Warn (but don’t fail) on missing files.
   URL and remote docspecs are not validated at load time.
   Locspecs are not validated at load time.
 - **Cycles are allowed.** The graph is not required to be a DAG. Cycles are natural in
   workflows where you may revisit earlier paths.
-- **Definition order is display order.** Areas are listed in the output in YAML order;
-  paths within each area are listed in YAML order.
+- **Definition order is display order.** Workflows are listed in the output in YAML order;
+  paths within each workflow are listed in YAML order.
 
 ### `progress.yml` — Per-Project State
 
@@ -590,10 +589,10 @@ paths:
 | `completed` | no | ISO date when this path was completed. |
 | `steps` | no | Map of docspec (step identity) to status (`not_started`, `in_progress`, `completed`, `skipped`). |
 | `extra_steps` | no | List of project-specific steps discovered during work. Each is a map of docspec to status. |
-| `notes` | no | Free-text notes about this path's progress. |
+| `notes` | no | Free-text notes about this path’s progress. |
 
 **Merge semantics:** Steps defined in signposts.yml but not present in progress.yml
-default to `not_started`. Extra steps in progress.yml that don't exist in signposts.yml
+default to `not_started`. Extra steps in progress.yml that don’t exist in signposts.yml
 are preserved (they are project-specific additions).
 
 ### CLI Commands
@@ -603,7 +602,7 @@ that reads `signposts.yml`.
 
 #### Navigation
 
-**`autorust signposts`** — Overview with areas, paths, and current position highlighted.
+**`autorust signposts`** — Overview with workflows, paths, and current position highlighted.
 
 ```
 $ autorust signposts
@@ -673,7 +672,7 @@ Progress: 1/9 workflow paths completed, 1 in progress
 $ autorust signposts where
 
 Current path: research — Evaluate Rust library candidates with real inputs
-  (area: Core Workflow)
+  (workflow: Core Workflow)
 
   Steps:
     [x] ./reference/mapping-reference.md                          Python-to-Rust mapping reference
@@ -692,7 +691,7 @@ Current path: research — Evaluate Rust library candidates with real inputs
 $ autorust signposts next
 
 Current step: ./reference/python-to-rust-playbook.md#library-evaluation
-  (path: research, area: Core Workflow)
+  (path: research, workflow: Core Workflow)
 
   When done: autorust signposts done research "./reference/python-to-rust-playbook.md#library-evaluation"
 ```
@@ -702,7 +701,7 @@ Current step: ./reference/python-to-rust-playbook.md#library-evaluation
 **`autorust signposts path <id>`** — Show path details with steps, docs, and routes.
 
 **`autorust signposts step <path> <docspec#locspec>`** — Print the doc content for a
-specific step. The step's docspec identifies the file to print.
+specific step. The step’s docspec identifies the file to print.
 If the docspec includes a locspec, the relevant section is highlighted.
 
 #### Progress Tracking
@@ -719,8 +718,8 @@ all steps in a path are completed, prompt to mark the path as completed too.
 
 #### Guide Alias
 
-**`autorust guide`** — Lists all paths grouped by area with descriptions (flat view,
-no progress indicators).
+**`autorust guide`** — Lists all paths grouped by workflow with descriptions (flat view, no
+progress indicators).
 
 **`autorust guide <path-id>`** — Prints the documentation files for a path.
 When a path has multiple docs, each is printed with a header line showing the file path.
@@ -739,11 +738,11 @@ When a path has multiple docs, each is printed with a header line showing the fi
 
 ### Phase 1: Format, Parser, and Navigation (Read-Only)
 
-- [ ] Define `SignpostArea`, `SignpostPath`, `SignpostRoute`, `SignpostsFile` dataclasses
-  with validation
+- [ ] Define `SignpostWorkflow`, `SignpostPath`, `SignpostRoute`, `SignpostsFile`
+  dataclasses with validation
 - [ ] Implement YAML loader with format version check and constraint validation (unique
   IDs, valid route targets, file existence warnings)
-- [ ] Implement `autorust signposts` — area/path overview display
+- [ ] Implement `autorust signposts` — workflow/path overview display
 - [ ] Implement `autorust signposts path <id>` — path detail display
 - [ ] Implement `autorust signposts step <path> <step>` — step doc content display
 - [ ] Implement `autorust guide` and `autorust guide <path-id>` — flat listing and doc
@@ -787,21 +786,22 @@ When a path has multiple docs, each is printed with a header line showing the fi
 
 ## Decisions Made
 
-1. **Areas/paths/steps/routes terminology.** The hierarchy is: areas contain paths,
-   paths contain steps and routes. This maps naturally to the trail/signpost metaphor
-   and provides the grouping that a flat node list lacked.
+1. **Workflows/paths/steps/routes terminology.** The hierarchy is: workflows contain paths,
+   paths contain steps and routes.
+   This maps naturally to the trail/signpost metaphor and provides the grouping that a
+   flat node list lacked.
 
-2. **Explicit IDs on areas and paths.** IDs are required, globally unique, and stable.
+2. **Explicit IDs on workflows and paths.** IDs are required, globally unique, and stable.
    Titles are display-only and can change freely without breaking route references or
    CLI commands. IDs follow `[a-z][a-z0-9-]*` (valid CLI identifiers).
 
-3. **Optional descriptions on areas and paths.** Since areas and paths are structural
+3. **Optional descriptions on workflows and paths.** Since workflows and paths are structural
    overlay (not docs themselves), they carry their own inline descriptions rather than
    pulling from doc frontmatter.
 
 4. **Steps are docspecs, not IDs.** A step is identified by its `docspec#locspec`
    string. No separate `id` field is needed — the doc reference is the identity.
-   Display text comes from the doc's frontmatter or heading text.
+   Display text comes from the doc’s frontmatter or heading text.
 
 5. **Routes can jump within or across paths.** A route targets a path ID (`to`) and
    optionally a specific step within that path (`at`). This allows intra-path jumps
@@ -818,22 +818,22 @@ When a path has multiple docs, each is printed with a header line showing the fi
 8. **progress.yml is committed to git.** Progress is part of the project record, useful
    for handoffs between agents and sessions.
 
-9. **Definition order is display order.** Areas and paths are displayed in the order
+9. **Definition order is display order.** Workflows and paths are displayed in the order
    they appear in the YAML.
 
-10. **Default traversal follows area/path order.** Within an area, paths are traversed
+10. **Default traversal follows workflow/path order.** Within a workflow, paths are traversed
     in listed order. Routes override this default for conditional jumps.
 
-11. **Local refs for inline content.** Short content that doesn't warrant its own
-    file can be defined in `refs` and referenced via `ref#<id>` docspecs. This keeps
-    the signpost structure self-contained for small checklists, decision criteria, and
-    transitional notes.
+11. **Local refs for inline content.** Short content that doesn’t warrant its own file
+    can be defined in `refs` and referenced via `ref#<id>` docspecs.
+    This keeps the signpost structure self-contained for small checklists, decision
+    criteria, and transitional notes.
 
-12. **Strict docspec prefixes.** Every docspec must start with a recognized prefix:
-    `./` (file), `ref#` (local ref), `github:` (remote), `https://`/`http://` (URL).
-    This makes parsing unambiguous and strict — no heuristic guessing. The `./` prefix
-    for files avoids YAML quoting issues with `#` and is consistent with shell path
-    conventions.
+12. **Strict docspec prefixes.** Every docspec must start with a recognized prefix: `./`
+    (file), `ref#` (local ref), `github:` (remote), `https://`/`http://` (URL). This
+    makes parsing unambiguous and strict — no heuristic guessing.
+    The `./` prefix for files avoids YAML quoting issues with `#` and is consistent with
+    shell path conventions.
 
 ## Open Questions
 
@@ -852,7 +852,7 @@ When a path has multiple docs, each is printed with a header line showing the fi
 - **Standalone CLI**: signposts as a concept is general-purpose.
   Should there eventually be a standalone `signposts` CLI separate from autorust?
   For now, implement within autorust.
-  Extract later if there's demand.
+  Extract later if there’s demand.
 
 ## References
 
